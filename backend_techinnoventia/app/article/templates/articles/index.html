@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Articles{% endblock %}
+
+
+{% block content %}
+
+{% block page_header %}
+    {% include "articles/article_banner.html" %}
+{% endblock %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h1>Liste des Articles</h1>
+
+                <ul class="list-unstyled">
+                    {% for article in articles %}
+                        <li class="mb-3">
+                            <h3><a href="{% url 'article:article_detail' article.pk %}">{{ article.title }}</a></h3>
+                            <p class="text-muted">Publié le {{ article.date_created }} par {{ article.author }}</p>
+                            <p>{{ article.introduction|truncatechars:150 }}</p>
+                            {% if article.image %}
+                                <img src="{{ article.image.url }}" alt="{{ article.title }}" class="img-fluid mb-2">
+                            {% endif %}
+                            <a href="{% url 'article:article_detail' article.pk %}" class="btn btn-primary btn-sm">Lire la suite</a>
+                        </li>
+                    {% empty %}
+                        <p>Aucun article pour le moment.</p>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <div class="sidebar">
+                    <h2>Articles Récents</h2>
+                    <ul class="list-unstyled">
+                        {% for recent_article in recent_articles %}
+                            <li><a href="{% url 'article:article_detail' recent_article.pk %}">{{ recent_article.title }}</a></li>
+                        {% empty %}
+                            <li>Aucun article récent.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block page_header %}
+    {% include "articles/article_banner.html" %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h1>{{ article.title }}</h1>
+                <p class="text-muted">Publié le {{ article.date_created }} par {{ article.author }}</p>
+                {% if article.image %}
+                    <img src="{{ article.image.url }}" alt="{{ article.title }}" class="img-fluid mb-3">
+                {% endif %}
+                <p>{{ article.introduction }}</p>
+                {% for section in article.sections.all %}
+                    {% if section.subtitle %}
+                        <h2>{{ section.subtitle }}</h2>
+                    {% endif %}
+                    {% if section.image %}
+                        <img src="{{ section.image.url }}" alt="{{ section.subtitle }}" class="img-fluid mb-2">
+                    {% endif %}
+                    <p>{{ section.content|linebreaksbr }}</p>
+                {% endfor %}
+
+                <hr>
+                <h3>Commentaires</h3>
+                {% for comment in comments %}
+                    <div class="media mb-3">
+                        <div class="media-body">
+                            <h5 class="mt-0">{{ comment.author.username }} <small class="text-muted">{{ comment.date_created }}</small></h5>
+                            <p>{{ comment.content|linebreaksbr }}</p>
+                            {% if comment.replies.all %}
+                                <div class="ml-3">
+                                    {% for reply in comment.replies.all %}
+                                        <div class="media mt-3">
+                                            <div class="media-body">
+                                                <h6 class="mt-0">{{ reply.author.username }} <small class="text-muted">{{ reply.date_created }}</small></h6>
+                                                <p>{{ reply.content|linebreaksbr }}</p>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>Soyez le premier à commenter !</p>
+                {% endfor %}
+                {# Formulaire pour ajouter un commentaire (à implémenter) #}
+            </div>
+            <div class="col-md-4">
+                <div class="sidebar">
+                    <h2>Articles Similaires</h2>
+                    <ul class="list-unstyled">
+                        {% for similar_article in similar_articles %}
+                            <li><a href="{% url 'article_detail' similar_article.pk %}">{{ similar_article.title }}</a></li>
+                        {% empty %}
+                            <li>Aucun article similaire trouvé.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

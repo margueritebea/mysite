@@ -1,0 +1,16 @@
+{# templates/partials/banner.html #}
+<div class="banner">
+    {% if banner_image %}
+        <img src="{{ banner_image.url }}" alt="Bannière">
+    {% elif banner_description %}
+        <p class="h1">{{ banner_description }}</p>
+    {% endif %}
+</div>
+<div class="breadcrumb m-3">
+    <a class="h1 nav-link" href="{% url 'home:index' %}">Home {{ breadcrumb_separator }}</a>
+    {% if request.path == '/articles/' %}
+       <a class="nav-link h1 mx-1" href="{% url 'articles:index' %}">Articles</a>
+    {% elif article %}
+        <a href="{% url 'articles:index' %}">Articles</a>{{ breadcrumb_separator }} {{ article.title }}
+    {% endif %}
+</div>
