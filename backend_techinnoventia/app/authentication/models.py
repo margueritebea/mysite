@@ -35,10 +35,8 @@ class Profil(models.Model):
     """
     ROLE_CHOICES = [
         ("user", "Default User"),
-        # ("eleve", "Eleve"),
         ("admin", "Admin"),
-        ("moderator", "Moderator"),
-        ("superadmin", "Superadmin"),
+
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profil")

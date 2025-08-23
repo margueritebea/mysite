@@ -165,10 +165,7 @@ class RoleAssignmentSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
     new_role = serializers.ChoiceField(choices=[
         ("user", "Default User"),
-        ("eleve", "Eleve"),
         ("admin", "Admin"),
-        ("moderator", "Moderator"),
-        ("superadmin", "Superadmin")
     ])
 
 
