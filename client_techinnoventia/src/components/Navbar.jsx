@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import {
     Bars3Icon,
@@ -8,18 +8,34 @@ import {
     PencilSquareIcon,
     ChevronDownIcon,
 } from '@heroicons/react/24/outline'
+import { authUtils, authAPI } from '../services/api'
 
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false)
     const [dropdownOpen, setDropdownOpen] = useState(false)
+    const [user, setUser] = useState(null)
     const navigate = useNavigate()
 
-    // Simuler un utilisateur
-    const user = { username: 'Jean' }
+    useEffect(() => {
+        // Check if user is authenticated on component mount
+        if (authUtils.isAuthenticated()) {
+            setUser(authUtils.getCurrentUser())
+        }
+    }, [])
 
-    const handleLogout = () => {
-        console.log('Déconnexion')
-        // navigate('/login')
+    const handleLogout = async () => {
+        try {
+            const refreshToken = localStorage.getItem('refresh_token')
+            if (refreshToken) {
+                await authAPI.logout(refreshToken)
+            }
+        } catch (error) {
+            console.error('Logout error:', error)
+        } finally {
+            authUtils.logout()
+            setUser(null)
+            navigate('/login')
+        }
     }
 
     return (

@@ -1,8 +1,8 @@
 import React from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import axios from 'axios'
 import { useNavigate } from "react-router-dom"
+import { authAPI, authUtils } from '../../services/api'
 
 const LoginForm = () => {
     const navigate = useNavigate()
@@ -13,31 +13,35 @@ const LoginForm = () => {
         },
         validationSchema: Yup.object({
             username: Yup.string()
-                .min(5, 'username be at least 5 characters long')
-                .matches(/[a-z]/, 'the name must contain at least one lower case letter')
-                .max(20, 'The name may not exceed 20 characters')
-                .matches(/^[a-zA-Z0-9_]+$/, 'The name may only contain letters, numerals and underscores')
-                .matches(/[0-9]/, 'The name must contain at least one digit')
-                .required('Required name'),
+                .min(3, 'Username must be at least 3 characters long')
+                .max(20, 'Username may not exceed 20 characters')
+                .required('Username is required'),
             password: Yup.string()
-                .min(7, 'must be at least 7 characters long')
-                .max(30, 'Le mot de passe ne peut pas dépasser 30 caractères')
-                .matches(/[a-z]/, 'the password must contain at least one lower case letter')
-                .matches(/[A-Z]/, 'the password must contain at least one upper case letter')
-                .matches(/[0-9]/, 'The password must contain at least one digit')
-                .matches(/[\W_]/, 'The password must contain at least one special character')
-                .required('Password required'),
+                .min(7, 'Password must be at least 7 characters long')
+                .max(30, 'Password may not exceed 30 characters')
+                .required('Password is required'),
         }),
         onSubmit: async (values) => {
             try {
-                const res = await axios.post('http://127.0.0.1:8000/api/auth/token/', values)
-                localStorage.setItem('access', res.data.access)
-                localStorage.setItem('refresh', res.data.refresh)
-                alert('Successful connection !')
-                // rediriger vers le tableau de bord, profil, etc.
+                const res = await authAPI.login(values)
+                
+                // Store tokens and user data
+                localStorage.setItem('access_token', res.data.access)
+                localStorage.setItem('refresh_token', res.data.refresh)
+                localStorage.setItem('user', JSON.stringify({
+                    username: res.data.username,
+                    email: res.data.email,
+                    profil: res.data.profil
+                }))
+                
+                alert('Connexion réussie !')
                 navigate("/")
             } catch (error) {
-                alert("Échec de connexion")
+                if (error.response?.data?.detail) {
+                    alert(`Erreur de connexion: ${error.response.data.detail}`)
+                } else {
+                    alert("Échec de connexion")
+                }
                 console.error(error)
             }
         }
@@ -46,43 +50,58 @@ const LoginForm = () => {
     return (
         <div className="min-h-screen bg-blue-50 flex items-center justify-center">
             <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-                <h2 className="text-3xl font-bold text-center bg-primary-red mb-6">Connexion</h2>
+                <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Connexion</h2>
                 <form onSubmit={formik.handleSubmit} className="space-y-5">
                     <div>
-                        <label className="block text-gray-700">Username</label>
+                        <label className="block text-gray-700 mb-2">Nom d'utilisateur</label>
                         <input
                         type="text"
                         name="username"
-                        className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                         value={formik.values.username}
                         />
-                        {formik.errors.username && <div className="text-red-500 text-sm">{formik.errors.username}</div>}
+                        {formik.touched.username && formik.errors.username && (
+                            <div className="text-red-500 text-sm mt-1">{formik.errors.username}</div>
+                        )}
                     </div>
 
                     <div>
-                        <label className="block text-gray-700">Password</label>
+                        <label className="block text-gray-700 mb-2">Mot de passe</label>
                         <input
                         type="password"
                         name="password"
-                        className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                         value={formik.values.password}
                         />
-                        {formik.errors.password && <div className="text-red-500 text-sm">{formik.errors.password}</div>}
+                        {formik.touched.password && formik.errors.password && (
+                            <div className="text-red-500 text-sm mt-1">{formik.errors.password}</div>
+                        )}
                     </div>
 
                     <button
                     type="submit"
-                    className="w-full bg-green-500 hover:bg-green-100 hover:border hover:border-green-600 text-green py-2 rounded-lg transition duration-300"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition duration-300 font-medium"
                     >
                         Se connecter
                     </button>
+                    
+                    <div className="text-center mt-4">
+                        <button
+                            type="button"
+                            onClick={() => navigate('/password-reset')}
+                            className="text-blue-600 hover:text-blue-800 text-sm underline"
+                        >
+                            Mot de passe oublié ?
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
     )
-
 }
 
 export default LoginForm
