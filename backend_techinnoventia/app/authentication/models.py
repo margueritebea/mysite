@@ -35,7 +35,7 @@ class Profil(models.Model):
     """
     ROLE_CHOICES = [
         ("user", "Default User"),
-        ("eleve", "Eleve"),
+        # ("eleve", "Eleve"),
         ("admin", "Admin"),
         ("moderator", "Moderator"),
         ("superadmin", "Superadmin"),
