@@ -1,20 +1,20 @@
 from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from .models import Profil
 
-from . models import Profil, User
 
-@receiver(post_save, sender = settings.AUTH_USER_MODEL)
-def create_user_profil(sender, instance, created, **kwargs):
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def manage_user_profil(sender, instance, created, **kwargs):
+    """
+    Automatically create a profile when a new user is created.
+    Ensure profile always exists.
+    """
     if created:
-        # Create related profile only once, at user creation time
         Profil.objects.create(user=instance)
-
-@receiver(post_save, sender = settings.AUTH_USER_MODEL)
-def save_user_profil(sender, instance, created=False, **kwargs):
-    # If a profile exists, keep it in sync; otherwise, do nothing here
-    try:
-        profil = instance.profil
-    except Profil.DoesNotExist:
-        return
-    profil.save()
+    else:
+        # Keep the profile in sync if it already exists
+        if hasattr(instance, "profil"):
+            instance.profil.save()
+        else:
+            Profil.objects.create(user=instance)
