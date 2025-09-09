@@ -1,4 +1,4 @@
-# mysite
+# TechInnoventia
 
 ## 🔐 Authentication & User Management API
 
