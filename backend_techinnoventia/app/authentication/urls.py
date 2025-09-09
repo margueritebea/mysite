@@ -3,9 +3,8 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (
     UserRegisterView, CustomLoginView, UsersList, ProfilView,
-    VerifyEmailView, ResendVerificationEmailView,
-    PasswordResetRequestView, PasswordResetConfirmView,
-    RoleManagementView,
+    VerifyEmailView, ResendVerificationEmailView, PasswordResetRequestView,
+    PasswordResetConfirmView, RoleManagementView,
 )
 
 router = DefaultRouter()
